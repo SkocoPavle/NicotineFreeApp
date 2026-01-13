@@ -126,5 +126,6 @@ const styles = StyleSheet.create({
   counterText: {
     fontWeight: 'bold',
     fontSize: 25,
+    
   },
 });
