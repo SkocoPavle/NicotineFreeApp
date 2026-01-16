@@ -9,7 +9,7 @@ export default function Home() {
 
   const cigaretteCount = () => {
       setCount(count => count + 1);
-      setTotalNicotine(totalNicotine => totalNicotine + 1.5);
+      setTotalNicotine(totalNicotine => totalNicotine + 2);
   }
   return (
     <View style={styles.container}>
@@ -45,13 +45,13 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    paddingBottom: 80,
+    paddingBottom: 130,
     alignItems: 'center',
   },
 
   button: {
-    width: 200,
-    height: 200,
+    width: 170,
+    height: 170,
     borderRadius: 150,
   },
 
@@ -91,8 +91,8 @@ const styles = StyleSheet.create({
   image: {
     resizeMode: 'contain',
     backgroundColor: 'black',
-    height: 200,
-    width: 200,
+    height: 170,
+    width: 170,
     borderRadius: 150,
     alignItems: 'center',
     justifyContent: 'center',
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
 
   nicotineStats :{
     backgroundColor: 'lightgray',
-    width: 100,
+    width: 120,
     height: 40,
     borderRadius: 25,
     alignItems: 'center',
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
 
   textNicotine : {
     fontWeight: 'bold',
-    fontSize: 24,
+    fontSize: 20,
   },
 
   counterText: {
