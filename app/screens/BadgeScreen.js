@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 
 function BadgeScreen() {
     return (
-        <View>
+        <View style={{justifyContent: 'center', alignContent: 'center'}}>
             <Text>Jeca pereca</Text>
         </View>
     );

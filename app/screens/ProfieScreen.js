@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 
 function ProfieScreen() {
     return (
-        <View>
+        <View style={{justifyContent: 'center', alignContent: 'center'}}>
             <Text>Opa</Text>
         </View>
     )}

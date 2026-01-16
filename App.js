@@ -1,7 +1,6 @@
-import Home from './app/screens/WelcomeScreen';
-
+import MainContainer from './app/MainContainer';
 export default function App() {
   return (
-    <Home />
+    <MainContainer />
   );
 }

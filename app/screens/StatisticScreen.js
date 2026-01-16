@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-function StatisticScreen() {
+function StatisticScreen({navigation}) {
     return (
-        <View>
-            <Text>Ciao bello</Text>
+        <View style={{justifyContent: 'center', alignContent: 'center'}}>
+            <Text onPress={() => navigation.navigate('Home')}>Ciao bello</Text>
         </View>
     );
 }
