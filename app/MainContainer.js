@@ -52,7 +52,7 @@ function MainContainer() {
                     },
 
                     tabBarLabelStyle: { fontSize: 14},   // 👈 labelStyle
-                    tabBarStyle: { height: 110, paddingTop: 10},
+                    tabBarStyle: { height: 105, paddingTop: 5},
                 })}
                 >
                     <Tab.Screen name = {badgeName} component={BadgeScreen}/>
