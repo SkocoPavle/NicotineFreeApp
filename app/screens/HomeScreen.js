@@ -1,5 +1,7 @@
-import {StyleSheet, View, SafeAreaView, Pressable, Image, Text} from 'react-native';
+import {StyleSheet, View, Pressable, Image, Text} from 'react-native';
+import { SafeAreaView} from 'react-native-safe-area-context';
 import { useState } from 'react';
+import SwipePages from '../SwipePages';
 
 export default function Home() {
   const [count, setCount] = useState(0);
@@ -13,7 +15,6 @@ export default function Home() {
   }
   return (
     <View style={styles.container}>
-
         <View style={styles.counter}>
           <Text style={styles.text}>Cigarette Counter</Text>
 
