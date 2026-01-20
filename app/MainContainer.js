@@ -51,7 +51,7 @@ function MainContainer() {
                         return <Ionicons name={iconName} size={size} color={color}/>
                     },
 
-                    tabBarLabelStyle: { fontSize: 14},   // 👈 labelStyle
+                    tabBarLabelStyle: { fontSize: 14},
                     tabBarStyle: { height: 105, paddingTop: 5},
                 })}
                 >

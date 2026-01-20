@@ -1,7 +1,6 @@
 import {StyleSheet, View, Pressable, Image, Text} from 'react-native';
 import { SafeAreaView} from 'react-native-safe-area-context';
 import { useState } from 'react';
-import SwipePages from '../SwipePages';
 
 export default function Home() {
   const [count, setCount] = useState(0);
@@ -35,7 +34,7 @@ export default function Home() {
 
         <SafeAreaView style={styles.buttonContainer}>
             <Pressable style={styles.button} onPress={cigaretteCount}>
-            <Image source={require('../assets/cig.jpg')} style={styles.image}/>
+              <Image source={require('../assets/cig.jpg')} style={styles.image}/>
             </Pressable>
         </SafeAreaView>
     </View>
@@ -46,7 +45,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    paddingBottom: 130,
+    paddingBottom: 50,
     alignItems: 'center',
   },
 
@@ -70,7 +69,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 20,
     paddingLeft: 10,
-    height: '45%',
+    height: '47%',
     top: 110,
     borderRadius: 20,
     shadowColor: "#000",
