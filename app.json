@@ -20,7 +20,8 @@
         "foregroundImage": "./app/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.skocopavle.NicotineFree"
     },
     "web": {
       "favicon": "./app/assets/favicon.png"
