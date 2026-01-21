@@ -1,13 +1,14 @@
-import {StyleSheet, View, Pressable, Image, Text} from 'react-native';
+import {StyleSheet, View, Pressable, Text} from 'react-native';
 import { SafeAreaView} from 'react-native-safe-area-context';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as Progress from 'react-native-progress';
 import { Ionicons } from '@expo/vector-icons';
 import { Animated } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function Home() {
+  // Za animaciju i 
   const [count, setCount] = useState(0);
   const [totalNicotine, setTotalNicotine] = useState(0);
   const [limit] = useState(20);
@@ -15,6 +16,18 @@ export default function Home() {
 
   const isOverLimit = count >= limit;
   const progressValue = Math.min(count / limit, 1);
+
+  const checkDailyReset = async () => {
+    const today = new Date().toDateString();
+    const lastReset = await AsyncStorage.getItem('lastResetDate');
+
+    if (lastReset !== today){
+      setCount(0);
+      setTotalNicotine(0);
+      animatedProgress.setValue(0);
+      await AsyncStorage.setItem('lastResetDate', today);
+    }
+  };
 
   const cigaretteCount = () => {
   const newCount = count + 1;
@@ -33,6 +46,18 @@ export default function Home() {
     inputRange: [0, 1],
     outputRange: ['#4A90E2', '#E53935'], // plava → crvena
     });
+
+  useEffect(() => {
+    checkDailyReset();
+
+  const subscription = AppState.addEventListener('change', state => {
+    if (state === 'active') {
+      checkDailyReset(); // 2️⃣ poziva se svaki put kad app postane aktivan
+      }
+    });
+
+  return () => subscription.remove();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -86,7 +111,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    paddingBottom: 20,
+    paddingBottom: 0,
     alignItems: 'center',
   },
 
@@ -135,16 +160,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center'
-  },
-
-  image: {
-    resizeMode: 'contain',
-    backgroundColor: 'black',
-    height: 170,
-    width: 170,
-    borderRadius: 150,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 
   nicotineView: {
