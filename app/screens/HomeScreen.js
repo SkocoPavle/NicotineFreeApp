@@ -1,4 +1,4 @@
-import {StyleSheet, View, Pressable, Text} from 'react-native';
+import {StyleSheet, View, Pressable, Text, AppState} from 'react-native';
 import { SafeAreaView} from 'react-native-safe-area-context';
 import { useState, useEffect } from 'react';
 import * as Progress from 'react-native-progress';
