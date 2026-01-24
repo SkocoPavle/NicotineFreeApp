@@ -33,7 +33,7 @@ function StatisticScreen({navigation}) {
         <LinearGradient colors={bgColors} style={{flex: 1}}>
             <SafeAreaView style={{flex: 1}}>
                 <ScrollView contentInsetAdjustmentBehavior="automatic" style={{paddingTop: 20}}>
-                    <BarChart data={data}/>
+                    <BarChart data={data} showGradient gradientColor={Color[theme.name][500]} frontColor={Color[theme.name][300]}/>
 
                     {/* Color theme selector*/}
                     <View style={{paddingHorizontal: 16}}>
@@ -41,9 +41,22 @@ function StatisticScreen({navigation}) {
 
                         <View style={{flexDirection: "row", gap: 16}}>
                             {Object.keys(colorThemes).map((theme) => (
-                                <Pressable key={theme}>
-                                    <Text style={styles.label}>{theme}</Text>
-                                </Pressable>
+                                <Pressable key={theme} onPress={() => setColorTheme(theme)}
+                                style={{
+                                    backgroundColor:
+                                        //@ts-ignore
+                                        Color[colorThemes[theme].name][500],
+                                        padding: 16,
+                                        borderRadius: 15,
+                                        width: 30,
+                                        height: 30,
+                                        borderWidth: colorTheme === theme ? 3 : 0,
+                                        borderColor: "white",
+                                        boxShadow:
+                                            colorTheme === theme
+                                            ? "0px 2px 8px rgba(0, 0, 0, 0.2)"
+                                            : "none",
+                                }}/>
                             ))}
                         </View>
                     </View>
