@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
 import { Color } from './constants/TWPalete';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { generateMonthlyData } from './constants/DummtData';
 
 
 const colorThemes = {
@@ -16,6 +17,8 @@ const colorThemes = {
 };
 
 function StatisticScreen({navigation}) {
+    const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+    const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
     const [colorTheme, setColorTheme] = useState("blue");
     const theme = colorThemes[colorTheme];
 
@@ -29,11 +32,54 @@ function StatisticScreen({navigation}) {
 
     const data = [{ value: 50}, {value: 80}, {value: 90}, {value: 70}];
 
+    const getMonthName = (month) => {
+        const months = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ];
+        return months[month];
+    };
+
+    const navigateMonth = (direction) => {
+        let newMonth = currentMonth + direction;
+        let newYear = currentYear;
+        if (newMonth < 0){
+            newYear = currentYear - 1
+            newMonth = 11;
+        }
+        else if(newMonth > 11){
+            newYear++;
+            newMonth = 0;
+        }
+
+        setCurrentMonth(newMonth);
+        setCurrentYear(newYear);
+        setSelectedBarIndex(null);
+    }
+
+    const montlyData = generateMonthlyData(currentYear, currentMonth);
+
+    const getChartData = () => {
+        return montlyData.map((item) => ({
+            ...item
+        }));
+    }
+
     return (
         <LinearGradient colors={bgColors} style={{flex: 1}}>
             <SafeAreaView style={{flex: 1}}>
                 <ScrollView contentInsetAdjustmentBehavior="automatic" style={{paddingTop: 20}}>
-                    <BarChart data={data} showGradient gradientColor={Color[theme.name][500]} frontColor={Color[theme.name][300]}/>
+                    <BarChart data={getChartData()} showGradient gradientColor={Color[theme.name][500]} frontColor={Color[theme.name][300]}/>
 
                     {/* Color theme selector*/}
                     <View style={{paddingHorizontal: 16}}>
