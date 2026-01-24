@@ -1,11 +1,26 @@
 import { View, Text, ScrollView, StyleSheet, Pressable} from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Color } from './constants/TWPalete';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { generateMonthlyData } from './constants/DummtData';
+import { Animated } from 'react-native';
 
+interface BarData {
+  value: number;
+  label?: string;
+  frontColor?: string;
+  [key: string]: any;
+}
+
+const scrollY = new Animated.Value(0);
+
+const headerOpacity = scrollY.interpolate({
+    inputRange: [0, 80],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+});
 
 const colorThemes = {
   blue: { name: "blue", primary: 500, accent: 600 },
@@ -18,7 +33,7 @@ const colorThemes = {
 
 function StatisticScreen({navigation}) {
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
-    const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
+    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [colorTheme, setColorTheme] = useState("blue");
     const theme = colorThemes[colorTheme];
 
@@ -29,8 +44,6 @@ function StatisticScreen({navigation}) {
         "#ffffff",
         Color[theme.name][100],
     ];
-
-    const data = [{ value: 50}, {value: 80}, {value: 90}, {value: 70}];
 
     const getMonthName = (month) => {
         const months = [
@@ -67,19 +80,55 @@ function StatisticScreen({navigation}) {
         setSelectedBarIndex(null);
     }
 
-    const montlyData = generateMonthlyData(currentYear, currentMonth);
+    const montlyData = useMemo( () => generateMonthlyData(currentYear, currentMonth), [currentYear, currentMonth]);
+    const [selectedBarIndex, setSelectedBarIndex] = useState(null);
+
 
     const getChartData = () => {
-        return montlyData.map((item) => ({
-            ...item
+        return montlyData.map((item, index) => ({
+            ...item,
+            topLabelComponent : () =>
+                selectedBarIndex  === index ? (
+                    <Text style={{color: themeColor[700], fontSize: 10, fontWeight: "600", marginBottom: 4}}>
+                        {item.value}
+                    </Text>
+                ): null
         }));
     }
 
     return (
         <LinearGradient colors={bgColors} style={{flex: 1}}>
             <SafeAreaView style={{flex: 1}}>
-                <ScrollView contentInsetAdjustmentBehavior="automatic" style={{paddingTop: 20}}>
-                    <BarChart data={getChartData()} showGradient gradientColor={Color[theme.name][500]} frontColor={Color[theme.name][300]}/>
+                <Animated.View
+                    style={{
+                        position: 'absolute',
+                        top: "7%",
+                        left: "3%",
+                        right: 0,
+                        height: 60,
+                        opacity: headerOpacity,
+                        zIndex: 10,
+                    }}
+                    >
+                    <Text style={{ fontSize: 35, fontWeight: '700' }}>
+                        Dashboard
+                    </Text>
+                </Animated.View>
+
+                <Animated.ScrollView
+                    contentInsetAdjustmentBehavior="automatic"
+                    style={{ paddingTop: 60 }} // da sadržaj ne ide ispod headera
+                    onScroll={Animated.event(
+                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                        { useNativeDriver: true }
+                    )}
+                    scrollEventThrottle={16}>
+
+                    <BarChart data={getChartData()} showGradient gradientColor={Color[theme.name][500]} frontColor={Color[theme.name][300]}
+                        noOfSections={4}
+                        onPress={(_item: BarData, index: number) => {
+                        setSelectedBarIndex(selectedBarIndex === index ? null : index);
+            }}/>
 
                     {/* Color theme selector*/}
                     <View style={{paddingHorizontal: 16}}>
@@ -106,7 +155,7 @@ function StatisticScreen({navigation}) {
                             ))}
                         </View>
                     </View>
-                </ScrollView>
+                </Animated.ScrollView>
             </SafeAreaView>
         </LinearGradient>
     );
