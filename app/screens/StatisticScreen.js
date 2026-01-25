@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     borderRadius: 16,
     padding: 16,
-    boxShadow: "0px 2px 8px rgba(0,0,0,0.05)",
+    boxShadow: "0px 2px 8px rgba(0,0,0,0.05)"
   },
   title: {
     fontSize: 28,
