@@ -6,6 +6,8 @@ import { Color } from './constants/TWPalete';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { generateMonthlyData } from './constants/DummtData';
 import { Animated } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+
 
 interface BarData {
   value: number;
@@ -101,8 +103,7 @@ function StatisticScreen({navigation}) {
             <SafeAreaView style={{flex: 1}}>
                 <Animated.View
                     style={{
-                        position: 'absolute',
-                        top: "7%",
+                        top: "%",
                         left: "3%",
                         right: 0,
                         height: 60,
@@ -114,10 +115,37 @@ function StatisticScreen({navigation}) {
                         Dashboard
                     </Text>
                 </Animated.View>
+                
+                {/*View for the Month and icons*/}
+                <View style ={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    paddingTop: 5,
+                    paddingHorizontal: 14,
+                }}>
+
+                    <Pressable onPress={() => navigateMonth(-1)} style={{padding: 8, borderRadius: 8}} hitSlop={20}>
+                        <Ionicons name="chevron-back" size={24} color={Color.gray[500]}/>
+                    </Pressable>
+
+                    <Text
+                        style={{
+                        fontSize: 18,
+                        fontWeight: "600",
+                        color: Color.gray[900],
+                        }}>
+                            {getMonthName(currentMonth)} {currentYear}
+                    </Text>
+
+                    <Pressable onPress={() => navigateMonth(1)} style={{padding: 8, borderRadius: 8}} hitSlop={20}>
+                        <Ionicons name="chevron-forward" size={24} color={Color.gray[500]}/>
+                    </Pressable>                    
+                </View>
 
                 <Animated.ScrollView
                     contentInsetAdjustmentBehavior="automatic"
-                    style={{ paddingTop: 60 }} // da sadržaj ne ide ispod headera
+                    style={{ paddingTop: 20 }} // da sadržaj ne ide ispod headera
                     onScroll={Animated.event(
                         [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                         { useNativeDriver: true }
@@ -125,13 +153,13 @@ function StatisticScreen({navigation}) {
                     scrollEventThrottle={16}>
 
                     <BarChart data={getChartData()} showGradient gradientColor={Color[theme.name][500]} frontColor={Color[theme.name][300]}
-                        noOfSections={4}
+                        noOfSections={4} yAxisThickness={0} xAxisThickness={0} dashGap={10}
                         onPress={(_item: BarData, index: number) => {
                         setSelectedBarIndex(selectedBarIndex === index ? null : index);
             }}/>
 
                     {/* Color theme selector*/}
-                    <View style={{paddingHorizontal: 16}}>
+                    <View style={{paddingHorizontal: 16, paddingTop: 20}}>
                         <Text style={styles.subtitle}>Choose Theme</Text>
 
                         <View style={{flexDirection: "row", gap: 16}}>
