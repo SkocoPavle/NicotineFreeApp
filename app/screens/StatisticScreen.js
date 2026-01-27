@@ -8,14 +8,6 @@ import { generateMonthlyData } from './constants/DummtData';
 import { Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-
-interface BarData {
-  value: number;
-  label?: string;
-  frontColor?: string;
-  [key: string]: any;
-}
-
 const scrollY = new Animated.Value(0);
 
 const headerOpacity = scrollY.interpolate({
@@ -91,7 +83,7 @@ function StatisticScreen({navigation}) {
             ...item,
             topLabelComponent : () =>
                 selectedBarIndex  === index ? (
-                    <Text style={{color: themeColor[700], fontSize: 10, fontWeight: "600", marginBottom: 4}}>
+                    <Text style={{color: themeColor[700], fontSize: 14, fontWeight: "600", marginBottom: 4}}>
                         {item.value}
                     </Text>
                 ): null
@@ -154,7 +146,7 @@ function StatisticScreen({navigation}) {
 
                     <BarChart data={getChartData()} showGradient gradientColor={Color[theme.name][500]} frontColor={Color[theme.name][300]}
                         noOfSections={4} yAxisThickness={0} xAxisThickness={0} dashGap={10}
-                        onPress={(_item: BarData, index: number) => {
+                        onPress={(_item, index) => {
                         setSelectedBarIndex(selectedBarIndex === index ? null : index);
             }}/>
 
