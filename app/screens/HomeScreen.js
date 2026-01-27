@@ -29,7 +29,13 @@ export default function Home() {
     }
   };
 
-  const cigaretteCount = () => {
+  // Funkcija za danasnni datum
+  const getTodayKey = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  }
+
+  const cigaretteCount = async () => {
   const newCount = count + 1;
   setCount(newCount);
   setTotalNicotine(totalNicotine => totalNicotine + 2);
@@ -40,6 +46,13 @@ export default function Home() {
     duration: 300, // trajanje animacije u ms
     useNativeDriver: false, // boja ne može sa native driver
     }).start();
+
+    //Statistika
+    const todayKey = getTodayKey();
+    const storedStats = await AsyncStorage.getItem('dailyStats');
+    const stats = storedStats ? JSON.parse(storedStats) : {};
+    stats[todayKey] = (stats[todayKey] || 0) + 1;
+    await AsyncStorage.setItem('dailyStats', JSON.stringify(stats));
   } ;
 
   const circleColor = animatedProgress.interpolate({

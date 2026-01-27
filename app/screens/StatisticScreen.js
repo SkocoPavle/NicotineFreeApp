@@ -28,7 +28,9 @@ const colorThemes = {
 function StatisticScreen({navigation}) {
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-    const [colorTheme, setColorTheme] = useState("blue");
+    const [currentDay, setCurrentDay] = useState(new Date().getDay());
+    const [colorTheme, setColorTheme] = useState("cyan");
+    const limit = useState(40);
     const theme = colorThemes[colorTheme];
 
     const themeColor = Color[theme.name];
@@ -39,6 +41,7 @@ function StatisticScreen({navigation}) {
         Color[theme.name][100],
     ];
 
+    // Ime mjeseca
     const getMonthName = (month) => {
         const months = [
             "Jan",
@@ -57,6 +60,42 @@ function StatisticScreen({navigation}) {
         return months[month];
     };
 
+    // Funkcija za dobijanje imena dana
+    const getDayName = (day) => {
+        const days = [
+            "Sun",
+            "Mon",
+            "Tue",
+            "wed",
+            "Thu",
+            "Fri",
+            "Sat"
+        ];
+        return days[day];
+    }
+
+    // Funkcija za dobijanje prvog dana u sedmici, nedelje
+    const getStartOfWeek = (date) => {
+         const newDate = new Date(date);
+         const day = newDate.getDay();
+         newDate.setDate(newDate.getDay() - day);
+         return newDate;
+    };
+
+    const generateWeeklyData = async (weekStart) => { 
+        const storedStats = await AsyncStorage.getItem('dailyStats'); 
+        const stats = storedStats ? JSON.parse(storedStats) : {}; 
+        const weekData = []; 
+        for (let i = 0; i < 7; i++){ 
+            const date = new Date(weekStart); 
+            date.setDate(weekStart.getDate() + i); 
+            const key = date.toISOString().split('T')[0]; 
+            weekData.push({ value: stats[key], lable: getDayName(date.getDay()), 
+            }); 
+        } 
+        return weekData; 
+    }
+
     const navigateMonth = (direction) => {
         let newMonth = currentMonth + direction;
         let newYear = currentYear;
@@ -73,6 +112,9 @@ function StatisticScreen({navigation}) {
         setCurrentYear(newYear);
         setSelectedBarIndex(null);
     }
+
+    const [currentWeekStart, setCurrentWeekStart] = useState(getStartOfWeek(new Date()));
+
 
     const montlyData = useMemo( () => generateMonthlyData(currentYear, currentMonth), [currentYear, currentMonth]);
     const [selectedBarIndex, setSelectedBarIndex] = useState(null);
@@ -95,7 +137,6 @@ function StatisticScreen({navigation}) {
             <SafeAreaView style={{flex: 1}}>
                 <Animated.View
                     style={{
-                        top: "%",
                         left: "3%",
                         right: 0,
                         height: 60,
@@ -194,7 +235,7 @@ const styles = StyleSheet.create({
     color: Color.gray[900],
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 18,
     color: Color.gray[600],
     marginBottom: 16,
   },
