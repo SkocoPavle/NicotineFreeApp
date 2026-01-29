@@ -93,7 +93,7 @@ function StatisticScreen({navigation}) {
             weekData.push({ value: stats[key], lable: getDayName(date.getDay()), 
             }); 
         } 
-        return weekData; 
+        return weekData;
     }
 
     const navigateMonth = (direction) => {
