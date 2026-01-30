@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet, Pressable} from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState, useMemo } from 'react';
@@ -17,15 +17,15 @@ const headerOpacity = scrollY.interpolate({
 });
 
 const colorThemes = {
-  blue: { name: "blue", primary: 500, accent: 600 },
-  purple: { name: "purple", primary: 500, accent: 600 },
-  emerald: { name: "emerald", primary: 500, accent: 600 },
-  orange: { name: "orange", primary: 500, accent: 600 },
-  pink: { name: "pink", primary: 500, accent: 600 },
-  cyan: { name: "cyan", primary: 500, accent: 600 },
+    blue: { name: "blue", primary: 500, accent: 600 },
+    purple: { name: "purple", primary: 500, accent: 600 },
+    emerald: { name: "emerald", primary: 500, accent: 600 },
+    orange: { name: "orange", primary: 500, accent: 600 },
+    pink: { name: "pink", primary: 500, accent: 600 },
+    cyan: { name: "cyan", primary: 500, accent: 600 },
 };
 
-function StatisticScreen({navigation}) {
+function StatisticScreen({ navigation }) {
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [currentDay, setCurrentDay] = useState(new Date().getDay());
@@ -76,34 +76,35 @@ function StatisticScreen({navigation}) {
 
     // Funkcija za dobijanje prvog dana u sedmici, nedelje
     const getStartOfWeek = (date) => {
-         const newDate = new Date(date);
-         const day = newDate.getDay();
-         newDate.setDate(newDate.getDay() - day);
-         return newDate;
+        const newDate = new Date(date);
+        const day = newDate.getDay();
+        newDate.setDate(newDate.getDay() - day);
+        return newDate;
     };
 
-    const generateWeeklyData = async (weekStart) => { 
-        const storedStats = await AsyncStorage.getItem('dailyStats'); 
-        const stats = storedStats ? JSON.parse(storedStats) : {}; 
-        const weekData = []; 
-        for (let i = 0; i < 7; i++){ 
-            const date = new Date(weekStart); 
-            date.setDate(weekStart.getDate() + i); 
-            const key = date.toISOString().split('T')[0]; 
-            weekData.push({ value: stats[key], lable: getDayName(date.getDay()), 
-            }); 
-        } 
+    const generateWeeklyData = async (weekStart) => {
+        const storedStats = await AsyncStorage.getItem('dailyStats');
+        const stats = storedStats ? JSON.parse(storedStats) : {};
+        const weekData = [];
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(weekStart);
+            date.setDate(weekStart.getDate() + i);
+            const key = date.toISOString().split('T')[0];
+            weekData.push({
+                value: stats[key], lable: getDayName(date.getDay()),
+            });
+        }
         return weekData;
     }
 
     const navigateMonth = (direction) => {
         let newMonth = currentMonth + direction;
         let newYear = currentYear;
-        if (newMonth < 0){
+        if (newMonth < 0) {
             newYear = currentYear - 1
             newMonth = 11;
         }
-        else if(newMonth > 11){
+        else if (newMonth > 11) {
             newYear++;
             newMonth = 0;
         }
@@ -116,25 +117,25 @@ function StatisticScreen({navigation}) {
     const [currentWeekStart, setCurrentWeekStart] = useState(getStartOfWeek(new Date()));
 
 
-    const montlyData = useMemo( () => generateMonthlyData(currentYear, currentMonth), [currentYear, currentMonth]);
+    const montlyData = useMemo(() => generateMonthlyData(currentYear, currentMonth), [currentYear, currentMonth]);
     const [selectedBarIndex, setSelectedBarIndex] = useState(null);
 
 
     const getChartData = () => {
         return montlyData.map((item, index) => ({
             ...item,
-            topLabelComponent : () =>
-                selectedBarIndex  === index ? (
-                    <Text style={{color: themeColor[700], fontSize: 14, fontWeight: "600", marginBottom: 4}}>
+            topLabelComponent: () =>
+                selectedBarIndex === index ? (
+                    <Text style={{ color: themeColor[700], fontSize: 14, fontWeight: "600", marginBottom: 4 }}>
                         {item.value}
                     </Text>
-                ): null
+                ) : null
         }));
     }
 
     return (
-        <LinearGradient colors={bgColors} style={{flex: 1}}>
-            <SafeAreaView style={{flex: 1}}>
+        <LinearGradient colors={bgColors} style={{ flex: 1 }}>
+            <SafeAreaView style={{ flex: 1 }}>
                 <Animated.View
                     style={{
                         left: "3%",
@@ -143,14 +144,14 @@ function StatisticScreen({navigation}) {
                         opacity: headerOpacity,
                         zIndex: 10,
                     }}
-                    >
+                >
                     <Text style={{ fontSize: 35, fontWeight: '700' }}>
                         Dashboard
                     </Text>
                 </Animated.View>
-                
+
                 {/*View for the Month and icons*/}
-                <View style ={{
+                <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                     alignItems: 'center',
@@ -158,22 +159,22 @@ function StatisticScreen({navigation}) {
                     paddingHorizontal: 14,
                 }}>
 
-                    <Pressable onPress={() => navigateMonth(-1)} style={{padding: 8, borderRadius: 8}} hitSlop={20}>
-                        <Ionicons name="chevron-back" size={24} color={Color.gray[500]}/>
+                    <Pressable onPress={() => navigateMonth(-1)} style={{ padding: 8, borderRadius: 8 }} hitSlop={20}>
+                        <Ionicons name="chevron-back" size={24} color={Color.gray[500]} />
                     </Pressable>
 
                     <Text
                         style={{
-                        fontSize: 18,
-                        fontWeight: "600",
-                        color: Color.gray[900],
+                            fontSize: 18,
+                            fontWeight: "600",
+                            color: Color.gray[900],
                         }}>
-                            {getMonthName(currentMonth)} {currentYear}
+                        {getMonthName(currentMonth)} {currentYear}
                     </Text>
 
-                    <Pressable onPress={() => navigateMonth(1)} style={{padding: 8, borderRadius: 8}} hitSlop={20}>
-                        <Ionicons name="chevron-forward" size={24} color={Color.gray[500]}/>
-                    </Pressable>                    
+                    <Pressable onPress={() => navigateMonth(1)} style={{ padding: 8, borderRadius: 8 }} hitSlop={20}>
+                        <Ionicons name="chevron-forward" size={24} color={Color.gray[500]} />
+                    </Pressable>
                 </View>
 
                 <Animated.ScrollView
@@ -188,20 +189,20 @@ function StatisticScreen({navigation}) {
                     <BarChart data={getChartData()} showGradient gradientColor={Color[theme.name][500]} frontColor={Color[theme.name][300]}
                         noOfSections={4} yAxisThickness={0} xAxisThickness={0} dashGap={10}
                         onPress={(_item, index) => {
-                        setSelectedBarIndex(selectedBarIndex === index ? null : index);
-            }}/>
+                            setSelectedBarIndex(selectedBarIndex === index ? null : index);
+                        }} />
 
                     {/* Color theme selector*/}
-                    <View style={{paddingHorizontal: 16, paddingTop: 20}}>
+                    <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
                         <Text style={styles.subtitle}>Choose Theme</Text>
 
-                        <View style={{flexDirection: "row", gap: 16}}>
+                        <View style={{ flexDirection: "row", gap: 16 }}>
                             {Object.keys(colorThemes).map((theme) => (
                                 <Pressable key={theme} onPress={() => setColorTheme(theme)}
-                                style={{
-                                    backgroundColor:
-                                        //@ts-ignore
-                                        Color[colorThemes[theme].name][500],
+                                    style={{
+                                        backgroundColor:
+                                            //@ts-ignore
+                                            Color[colorThemes[theme].name][500],
                                         padding: 16,
                                         borderRadius: 15,
                                         width: 30,
@@ -210,9 +211,9 @@ function StatisticScreen({navigation}) {
                                         borderColor: "white",
                                         boxShadow:
                                             colorTheme === theme
-                                            ? "0px 2px 8px rgba(0, 0, 0, 0.2)"
-                                            : "none",
-                                }}/>
+                                                ? "0px 2px 8px rgba(0, 0, 0, 0.2)"
+                                                : "none",
+                                    }} />
                             ))}
                         </View>
                     </View>
@@ -223,25 +224,25 @@ function StatisticScreen({navigation}) {
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#ffffff",
-    borderRadius: 16,
-    padding: 16,
-    boxShadow: "0px 2px 8px rgba(0,0,0,0.05)"
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: Color.gray[900],
-  },
-  subtitle: {
-    fontSize: 18,
-    color: Color.gray[600],
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 14,
-    color: Color.gray[600],
-  },
+    card: {
+        backgroundColor: "#ffffff",
+        borderRadius: 16,
+        padding: 16,
+        boxShadow: "0px 2px 8px rgba(0,0,0,0.05)"
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: "700",
+        color: Color.gray[900],
+    },
+    subtitle: {
+        fontSize: 18,
+        color: Color.gray[600],
+        marginBottom: 16,
+    },
+    label: {
+        fontSize: 14,
+        color: Color.gray[600],
+    },
 });
 export default StatisticScreen;
