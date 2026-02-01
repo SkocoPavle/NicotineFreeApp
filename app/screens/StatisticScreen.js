@@ -74,7 +74,7 @@ function StatisticScreen({ navigation }) {
         return days[day];
     }
 
-    // Funkcija za dobijanje prvog dana u sedmici, nedelje
+    // Funkcija za dobijanje prvog dana u sedmici
     const getStartOfWeek = (date) => {
         const newDate = new Date(date);
         const day = newDate.getDay();
