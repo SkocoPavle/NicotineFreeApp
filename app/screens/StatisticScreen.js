@@ -1,12 +1,13 @@
 import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Color } from './constants/TWPalete';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { generateMonthlyData } from './constants/DummtData';
 import { Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const scrollY = new Animated.Value(0);
 
@@ -26,8 +27,8 @@ const colorThemes = {
 };
 
 function StatisticScreen({ navigation }) {
-    const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+    const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
     const [currentDay, setCurrentDay] = useState(new Date().getDay());
     const [colorTheme, setColorTheme] = useState("cyan");
     const limit = useState(40);
@@ -82,6 +83,29 @@ function StatisticScreen({ navigation }) {
         return newDate;
     };
 
+    //Funkcija koja sluzi za cuvanje prvog puta kada korisnik instalira aplikaciju
+    const ensureInstallDate = async () => {
+        const storedDate = await AsyncStorage.getItem('installDate');
+
+        if (!storedDate){
+            const today = new Date().toISOString;
+            await AsyncStorage('installDate', today)
+            return new Date(today);
+        }
+
+        return storedDate;
+    }
+
+    //referenca za brojanje sedmica
+    const getWeekNumber = (date, installDate) => {
+        const startOfInstallWeek = getStartOfWeek(installDate);
+        const startOfCurrentWeek = getStartofWeek(date);
+
+        const diffInDays = (startOfCurrentWeek - startOfInstallWeek) / (1000 * 60 * 60 * 24);
+        return Math.floor(diffInDays / 7) + 1;
+}
+
+    //Za pravljenje podataka u sedmici i prikaz preko statistike
     const generateWeeklyData = async (weekStart) => {
         const storedStats = await AsyncStorage.getItem('dailyStats');
         const stats = storedStats ? JSON.parse(storedStats) : {};
@@ -96,6 +120,8 @@ function StatisticScreen({ navigation }) {
         }
         return weekData;
     }
+
+    //Navigacija kroz sedmicu
 
     const navigateMonth = (direction) => {
         let newMonth = currentMonth + direction;
@@ -120,6 +146,20 @@ function StatisticScreen({ navigation }) {
     const montlyData = useMemo(() => generateMonthlyData(currentYear, currentMonth), [currentYear, currentMonth]);
     const [selectedBarIndex, setSelectedBarIndex] = useState(null);
 
+    const [installDate, setInstallDate] = useState(null);
+    const [currentWeek, setCurrentWeek] = useState(null);
+
+    useEffect (() =>{
+        const init = async () => {
+            const date = await ensureInstallDate();
+            setInstallDate(date);
+
+            const week = await getWeekNumber();
+            setCurrentWeek(week);
+        }
+
+        return init();
+    }, []);
 
     const getChartData = () => {
         return montlyData.map((item, index) => ({
