@@ -87,7 +87,7 @@ function StatisticScreen({ navigation }) {
     const ensureInstallDate = async () => {
         const storedDate = await AsyncStorage.getItem('installDate');
 
-        if (!storedDate){
+        if (!storedDate) {
             const today = new Date().toISOString;
             await AsyncStorage('installDate', today)
             return new Date(today);
@@ -103,7 +103,7 @@ function StatisticScreen({ navigation }) {
 
         const diffInDays = (startOfCurrentWeek - startOfInstallWeek) / (1000 * 60 * 60 * 24);
         return Math.floor(diffInDays / 7) + 1;
-}
+    }
 
     //Za pravljenje podataka u sedmici i prikaz preko statistike
     const generateWeeklyData = async (weekStart) => {
@@ -149,7 +149,7 @@ function StatisticScreen({ navigation }) {
     const [installDate, setInstallDate] = useState(null);
     const [currentWeek, setCurrentWeek] = useState(null);
 
-    useEffect (() =>{
+    useEffect(() => {
         const init = async () => {
             const date = await ensureInstallDate();
             setInstallDate(date);
