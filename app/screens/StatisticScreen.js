@@ -4,10 +4,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useState, useMemo, useEffect } from 'react';
 import { Color } from './constants/TWPalete';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { generateMonthlyData } from './constants/DummtData';
+import { generateMonthlyData, weeklyData } from './constants/DummtData';
 import { Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PreventRemoveContext } from '@react-navigation/native';
 
 const scrollY = new Animated.Value(0);
 
@@ -88,8 +89,8 @@ function StatisticScreen({ navigation }) {
         const storedDate = await AsyncStorage.getItem('installDate');
 
         if (!storedDate) {
-            const today = new Date().toISOString;
-            await AsyncStorage('installDate', today)
+            const today = new Date().toISOString();
+            await AsyncStorage.setItem('installDate', today)
             return new Date(today);
         }
 
@@ -99,7 +100,7 @@ function StatisticScreen({ navigation }) {
     //referenca za brojanje sedmica
     const getWeekNumber = (date, installDate) => {
         const startOfInstallWeek = getStartOfWeek(installDate);
-        const startOfCurrentWeek = getStartofWeek(date);
+        const startOfCurrentWeek = getStartOfWeek(date);
 
         const diffInDays = (startOfCurrentWeek - startOfInstallWeek) / (1000 * 60 * 60 * 24);
         return Math.floor(diffInDays / 7) + 1;
@@ -115,14 +116,34 @@ function StatisticScreen({ navigation }) {
             date.setDate(weekStart.getDate() + i);
             const key = date.toISOString().split('T')[0];
             weekData.push({
-                value: stats[key], lable: getDayName(date.getDay()),
+                value: stats[key] || 0, label: getDayName(date.getDay()),
             });
         }
         return weekData;
     }
 
-    //Navigacija kroz sedmicu
+    //Navigacija kroz sedmice
 
+    const navigateWeek = async (direction) => {
+        const today = new Date();
+        const maxWeek = getStartOfWeek(today);
+        const installWeek = getStartOfWeek(installDate);
+        if (!installDate) return null;
+
+        const newWeekStart = new Date(currentWeekStart);
+        newWeekStart.setDate(newWeekStart.getDate() + direction * 7);
+
+        if (newWeekStart > maxWeek || newWeekStart < installWeek){
+            return;
+        }
+
+        setCurrentWeekStart(newWeekStart);
+
+        const data = await generateWeeklyData(newWeekStart);
+        setWeeklyData(data);
+    }
+
+    //Navigacija kroz mjesece
     const navigateMonth = (direction) => {
         let newMonth = currentMonth + direction;
         let newYear = currentYear;
@@ -154,14 +175,31 @@ function StatisticScreen({ navigation }) {
             const date = await ensureInstallDate();
             setInstallDate(date);
 
-            const week = await getWeekNumber();
-            setCurrentWeek(week);
+            const weekStart = getStartOfWeek(new Date());
+            setCurrentWeekStart(weekStart);
+
+            const data = await generateWeeklyData(weekStart);
+            setWeeklyData(data);
         }
 
-        return init();
+        init();
     }, []);
 
+    const [viewMode, setViewMode] = useState("weekly") // set mode za sedmice ili mjesece
+
     const getChartData = () => {
+        if (viewMode === "weekly"){
+            if (!weeklyData) return [];
+            return weeklyData.map((item, index) => ({
+                ...item,
+                topLabelComponent: () =>
+                    selectedBarIndex === index ? (
+                    <Text style={{ color: themeColor[700], fontSize: 14, fontWeight: "600", marginBottom: 4 }}>
+                        {item.value}
+                    </Text>
+                    ) : null
+            }));
+        }else {
         return montlyData.map((item, index) => ({
             ...item,
             topLabelComponent: () =>
@@ -171,6 +209,7 @@ function StatisticScreen({ navigation }) {
                     </Text>
                 ) : null
         }));
+        }
     }
 
     return (
@@ -189,7 +228,12 @@ function StatisticScreen({ navigation }) {
                         Dashboard
                     </Text>
                 </Animated.View>
-
+                
+                {/*Style for the buttons of the weekly stats and monyly stats*/}
+                <View style={{flexDirection: "row", justifyContent: "flex-start", paddingVertical: 10, paddingLeft: 10, gap: 20}}>
+                    <Pressable onPress={() => setViewMode("weekly")}><Text style={{fontSize: 20}}>Weekly</Text></Pressable>
+                    <Pressable onPress={() => setViewMode("montly")}><Text style={{fontSize: 20}}>Montly</Text></Pressable>
+                </View>
                 {/*View for the Month and icons*/}
                 <View style={{
                     flexDirection: 'row',
@@ -199,7 +243,7 @@ function StatisticScreen({ navigation }) {
                     paddingHorizontal: 14,
                 }}>
 
-                    <Pressable onPress={() => navigateMonth(-1)} style={{ padding: 8, borderRadius: 8 }} hitSlop={20}>
+                    <Pressable onPress={() => viewMode === "weekly" ? navigateWeek(-1) : navigateMonth(-1)} style={{ padding: 8, borderRadius: 8 }} hitSlop={20}>
                         <Ionicons name="chevron-back" size={24} color={Color.gray[500]} />
                     </Pressable>
 
@@ -209,10 +253,12 @@ function StatisticScreen({ navigation }) {
                             fontWeight: "600",
                             color: Color.gray[900],
                         }}>
-                        {getMonthName(currentMonth)} {currentYear}
+                        {viewMode === "weekly"       
+                            ? `Week ${getWeekNumber(currentWeekStart, installDate)}` 
+                            : `${getMonthName(currentMonth)} ${currentYear}`}
                     </Text>
 
-                    <Pressable onPress={() => navigateMonth(1)} style={{ padding: 8, borderRadius: 8 }} hitSlop={20}>
+                    <Pressable onPress={() => viewMode === "weekly" ? navigateWeek(+1) : navigateMonth(+1)} style={{ padding: 8, borderRadius: 8 }} hitSlop={20}>
                         <Ionicons name="chevron-forward" size={24} color={Color.gray[500]} />
                     </Pressable>
                 </View>
