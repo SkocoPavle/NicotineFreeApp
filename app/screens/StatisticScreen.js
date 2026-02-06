@@ -265,7 +265,7 @@ function StatisticScreen({ navigation }) {
 
                 <Animated.ScrollView
                     contentInsetAdjustmentBehavior="automatic"
-                    style={{ paddingTop: 20 }} // da sadržaj ne ide ispod headera
+                    style={{ paddingTop: 20 }} // da sadržaj ne ide ispod headeraa
                     onScroll={Animated.event(
                         [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                         { useNativeDriver: true }
