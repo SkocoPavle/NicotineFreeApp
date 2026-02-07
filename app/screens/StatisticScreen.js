@@ -133,7 +133,7 @@ function StatisticScreen({ navigation }) {
         const newWeekStart = new Date(currentWeekStart);
         newWeekStart.setDate(newWeekStart.getDate() + direction * 7);
 
-        if (newWeekStart > maxWeek || newWeekStart < installWeek){
+        if (newWeekStart > maxWeek || newWeekStart < installWeek) {
             return;
         }
 
@@ -188,27 +188,27 @@ function StatisticScreen({ navigation }) {
     const [viewMode, setViewMode] = useState("weekly") // set mode za sedmice ili mjesece
 
     const getChartData = () => {
-        if (viewMode === "weekly"){
+        if (viewMode === "weekly") {
             if (!weeklyData) return [];
             return weeklyData.map((item, index) => ({
                 ...item,
                 topLabelComponent: () =>
                     selectedBarIndex === index ? (
-                    <Text style={{ color: themeColor[700], fontSize: 14, fontWeight: "600", marginBottom: 4 }}>
-                        {item.value}
-                    </Text>
+                        <Text style={{ color: themeColor[700], fontSize: 14, fontWeight: "600", marginBottom: 4 }}>
+                            {item.value}
+                        </Text>
                     ) : null
             }));
-        }else {
-        return montlyData.map((item, index) => ({
-            ...item,
-            topLabelComponent: () =>
-                selectedBarIndex === index ? (
-                    <Text style={{ color: themeColor[700], fontSize: 14, fontWeight: "600", marginBottom: 4 }}>
-                        {item.value}
-                    </Text>
-                ) : null
-        }));
+        } else {
+            return montlyData.map((item, index) => ({
+                ...item,
+                topLabelComponent: () =>
+                    selectedBarIndex === index ? (
+                        <Text style={{ color: themeColor[700], fontSize: 14, fontWeight: "600", marginBottom: 4 }}>
+                            {item.value}
+                        </Text>
+                    ) : null
+            }));
         }
     }
 
@@ -228,11 +228,11 @@ function StatisticScreen({ navigation }) {
                         Dashboard
                     </Text>
                 </Animated.View>
-                
+
                 {/*Style for the buttons of the weekly stats and monyly stats*/}
-                <View style={{flexDirection: "row", justifyContent: "flex-start", paddingVertical: 10, paddingLeft: 10, gap: 20}}>
-                    <Pressable onPress={() => setViewMode("weekly")}><Text style={{fontSize: 20}}>Weekly</Text></Pressable>
-                    <Pressable onPress={() => setViewMode("montly")}><Text style={{fontSize: 20}}>Montly</Text></Pressable>
+                <View style={{ flexDirection: "row", justifyContent: "flex-start", paddingVertical: 10, paddingLeft: 10, gap: 20 }}>
+                    <Pressable onPress={() => setViewMode("weekly")}><Text style={{ fontSize: 20 }}>Weekly</Text></Pressable>
+                    <Pressable onPress={() => setViewMode("montly")}><Text style={{ fontSize: 20 }}>Montly</Text></Pressable>
                 </View>
                 {/*View for the Month and icons*/}
                 <View style={{
@@ -253,8 +253,8 @@ function StatisticScreen({ navigation }) {
                             fontWeight: "600",
                             color: Color.gray[900],
                         }}>
-                        {viewMode === "weekly"       
-                            ? `Week ${getWeekNumber(currentWeekStart, installDate)}` 
+                        {viewMode === "weekly"
+                            ? `Week ${getWeekNumber(currentWeekStart, installDate)}`
                             : `${getMonthName(currentMonth)} ${currentYear}`}
                     </Text>
 
@@ -265,7 +265,7 @@ function StatisticScreen({ navigation }) {
 
                 <Animated.ScrollView
                     contentInsetAdjustmentBehavior="automatic"
-                    style={{ paddingTop: 20 }} // da sadržaj ne ide ispod headeraa
+                    style={{ paddingTop: 20 }} // da sadržaj ne ide ispod headera
                     onScroll={Animated.event(
                         [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                         { useNativeDriver: true }
