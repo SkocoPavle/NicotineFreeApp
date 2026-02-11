@@ -30,6 +30,7 @@ const colorThemes = {
 function StatisticScreen({ navigation }) {
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+    const [weeklyData, setWeeklyData] = useState([]);
     const [currentDay, setCurrentDay] = useState(new Date().getDay());
     const [colorTheme, setColorTheme] = useState("cyan");
     const limit = useState(40);
@@ -80,7 +81,7 @@ function StatisticScreen({ navigation }) {
     const getStartOfWeek = (date) => {
         const newDate = new Date(date);
         const day = newDate.getDay();
-        newDate.setDate(newDate.getDay() - day);
+        newDate.setDate(newDate.getDate() - day);
         return newDate;
     };
 
@@ -94,16 +95,17 @@ function StatisticScreen({ navigation }) {
             return new Date(today);
         }
 
-        return storedDate;
+        return new Date(storedDate);
     }
 
     //referenca za brojanje sedmica
     const getWeekNumber = (date, installDate) => {
+        if (!installDate) return 0;
         const startOfInstallWeek = getStartOfWeek(installDate);
         const startOfCurrentWeek = getStartOfWeek(date);
 
         const diffInDays = (startOfCurrentWeek - startOfInstallWeek) / (1000 * 60 * 60 * 24);
-        return Math.floor(diffInDays / 7) + 1;
+        return Math.max(0, Math.floor(diffInDays / 7) + 1);
     }
 
     //Za pravljenje podataka u sedmici i prikaz preko statistike
@@ -125,9 +127,6 @@ function StatisticScreen({ navigation }) {
     //Navigacija kroz sedmice
 
     const navigateWeek = async (direction) => {
-        const today = new Date();
-        const maxWeek = getStartOfWeek(today);
-        const installWeek = getStartOfWeek(installDate);
         if (!installDate) return null;
 
         const newWeekStart = new Date(currentWeekStart);
@@ -137,9 +136,8 @@ function StatisticScreen({ navigation }) {
             return;
         }
 
-        setCurrentWeekStart(newWeekStart);
-
         const data = await generateWeeklyData(newWeekStart);
+        setCurrentWeekStart(newWeekStart);
         setWeeklyData(data);
     }
 
@@ -171,19 +169,16 @@ function StatisticScreen({ navigation }) {
     const [currentWeek, setCurrentWeek] = useState(null);
 
     useEffect(() => {
-        const init = async () => {
-            const date = await ensureInstallDate();
-            setInstallDate(date);
+        if (!currentWeekStart) return;
 
-            const weekStart = getStartOfWeek(new Date());
-            setCurrentWeekStart(weekStart);
-
-            const data = await generateWeeklyData(weekStart);
+        const fetchData = async () => {
+            const data = await generateWeeklyData(currentWeekStart);
             setWeeklyData(data);
         }
 
-        init();
-    }, []);
+        fetchData();
+    }, [currentWeekStart]);
+
 
     const [viewMode, setViewMode] = useState("weekly") // set mode za sedmice ili mjesece
 
