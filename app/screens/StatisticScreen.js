@@ -108,7 +108,7 @@ function StatisticScreen({ navigation }) {
         return Math.max(0, Math.floor(diffInDays / 7) + 1);
     }
 
-    //Za pravljenje podataka u sedmici i prikaz preko statistikee
+    //Za pravljenje podataka u sedmici i prikaz preko statistike
     const generateWeeklyData = async (weekStart) => {
         const storedStats = await AsyncStorage.getItem('dailyStats');
         const stats = storedStats ? JSON.parse(storedStats) : {};
