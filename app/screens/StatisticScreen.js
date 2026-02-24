@@ -4,7 +4,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useState, useMemo, useEffect } from 'react';
 import { Color } from './constants/TWPalete';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { generateMonthlyData, weeklyData } from './constants/DummtData';
 import { Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -113,7 +112,7 @@ function StatisticScreen({ navigation }) {
         const storedStats = await AsyncStorage.getItem('dailyStats');
         const stats = storedStats ? JSON.parse(storedStats) : {};
         const weekData = [];
-        for (let i = 0; i < 7; i++) {
+        for (let i = 1; i < 7 + 1; i++) {
             const date = new Date(weekStart);
             date.setDate(weekStart.getDate() + i);
             const key = date.toISOString().split('T')[0];
@@ -124,6 +123,26 @@ function StatisticScreen({ navigation }) {
         return weekData;
     }
 
+
+    //Funkcija za grenerisanje montly data
+    const fetchMontlyData = async () => {
+        const storedStats = await AsyncStorage.getItem('dailyStats');
+        const stats = storedStats ? JSON.parse(storedStats) : null;
+
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const monthData = [];
+
+        for (let day = 1; day < daysInMonth; day++){
+            const date = new Date(currentYear, currentMonth, day);
+            const key = date.toISOString().split('T')[0]
+
+            monthData.push({
+                value: stats[key] || 0,
+                label: day.toString(),
+            });
+        }      
+        setMonthlyData(monthData);      
+    }
     //Navigacija kroz sedmice
 
     const navigateWeek = async (direction) => {
@@ -162,7 +181,16 @@ function StatisticScreen({ navigation }) {
     const [currentWeekStart, setCurrentWeekStart] = useState(getStartOfWeek(new Date()));
 
 
-    const montlyData = useMemo(() => generateMonthlyData(currentYear, currentMonth), [currentYear, currentMonth]);
+    const [montlyData, setMontlyData] = useState([]);
+
+    useEffect (() => {
+        if (viewMode !== "montly") return;
+        const fetchData = async () => {
+            await fetchMontlyData();
+        };
+
+        fetchData();   
+    },[currentYear, currentMonth, viewMode])
     const [selectedBarIndex, setSelectedBarIndex] = useState(null);
 
     const [installDate, setInstallDate] = useState(null);
