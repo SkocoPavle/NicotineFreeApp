@@ -27,14 +27,18 @@ const colorThemes = {
 };
 
 function StatisticScreen({ navigation }) {
-    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-    const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
-    const [weeklyData, setWeeklyData] = useState([]);
     const [currentDay, setCurrentDay] = useState(new Date().getDay());
     const [colorTheme, setColorTheme] = useState("cyan");
+    const [installDate, setInstallDate] = useState(null);
+    const [currentWeekStart, setCurrentWeekStart] = useState(null);
+    const [weeklyData, setWeeklyData] = useState([]);
+    const [monthlyData, setMonthlyData] = useState([]);
+    const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+    const [selectedBarIndex, setSelectedBarIndex] = useState(null);
+    const [viewMode, setViewMode] = useState("weekly");
     const limit = useState(40);
     const theme = colorThemes[colorTheme];
-
     const themeColor = Color[theme.name];
 
     const bgColors = [
@@ -112,10 +116,10 @@ function StatisticScreen({ navigation }) {
         const storedStats = await AsyncStorage.getItem('dailyStats');
         const stats = storedStats ? JSON.parse(storedStats) : {};
         const weekData = [];
-        for (let i = 1; i < 7 + 1; i++) {
+        for (let i = 0; i < 7; i++) {
             const date = new Date(weekStart);
             date.setDate(weekStart.getDate() + i);
-            const key = date.toISOString().split('T')[0];
+            const key = date.toLocaleDateString('en-CA');
             weekData.push({
                 value: stats[key] || 0, label: getDayName(date.getDay()),
             });
@@ -127,20 +131,21 @@ function StatisticScreen({ navigation }) {
     //Funkcija za grenerisanje montly data
     const fetchMontlyData = async () => {
         const storedStats = await AsyncStorage.getItem('dailyStats');
-        const stats = storedStats ? JSON.parse(storedStats) : null;
+        console.log(JSON.parse(storedStats));
+        const stats = storedStats ? JSON.parse(storedStats) : {};
 
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const monthData = [];
 
-        for (let day = 1; day < daysInMonth; day++){
+        for (let day = 1; day <= daysInMonth; day++){
             const date = new Date(currentYear, currentMonth, day);
-            const key = date.toISOString().split('T')[0]
+            const key = date.toLocaleDateString('en-CA');
 
             monthData.push({
                 value: stats[key] || 0,
                 label: day.toString(),
             });
-        }      
+        }     
         setMonthlyData(monthData);      
     }
     //Navigacija kroz sedmice
@@ -162,6 +167,7 @@ function StatisticScreen({ navigation }) {
 
     //Navigacija kroz mjesece
     const navigateMonth = (direction) => {
+
         let newMonth = currentMonth + direction;
         let newYear = currentYear;
         if (newMonth < 0) {
@@ -173,27 +179,50 @@ function StatisticScreen({ navigation }) {
             newMonth = 0;
         }
 
+        if (installDate){
+            const installYear = installDate.getFullYear();
+            const installMonth = installDate.getMonth();
+
+            if (newYear < installYear || (newYear === installYear && newMonth < installMonth)) return;
+        }
+
+        const today = new Date();
+        const todayYear = today.getFullYear();
+        const todayMonth = today.getMonth();
+
+        if (newYear > todayYear || (newYear === todayYear && newMonth > todayMonth)) return;
         setCurrentMonth(newMonth);
         setCurrentYear(newYear);
         setSelectedBarIndex(null);
     }
 
-    const [currentWeekStart, setCurrentWeekStart] = useState(getStartOfWeek(new Date()));
+    useEffect(() => {
+        const initApp = async () => {
+            const installDateLocal = await ensureInstallDate();
+            setInstallDate(installDateLocal);
 
+            const today = new Date()
+            const todayYear = today.getFullYear();
+            const todayMonth = today.getMonth();
 
-    const [montlyData, setMontlyData] = useState([]);
+            const startOfCurrentWeek = getStartOfWeek(today);
+            setCurrentWeekStart(startOfCurrentWeek);
 
-    useEffect (() => {
-        if (viewMode !== "montly") return;
-        const fetchData = async () => {
-            await fetchMontlyData();
+            const weekly = await generateWeeklyData(startOfCurrentWeek);
+            setWeeklyData(weekly);
+
+            if (viewMode === "monthly") {
+                fetchMontlyData();
+            }
         };
+        initApp();
+    }, []);
 
-        fetchData();   
-    },[currentYear, currentMonth, viewMode])
-    const [selectedBarIndex, setSelectedBarIndex] = useState(null);
-
-    const [installDate, setInstallDate] = useState(null);
+    useEffect(() => {
+        if (viewMode === "monthly") {
+            fetchMontlyData();
+        }
+    }, [viewMode, currentMonth, currentYear]);
     const [currentWeek, setCurrentWeek] = useState(null);
 
     useEffect(() => {
@@ -208,8 +237,6 @@ function StatisticScreen({ navigation }) {
     }, [currentWeekStart]);
 
 
-    const [viewMode, setViewMode] = useState("weekly") // set mode za sedmice ili mjesece
-
     const getChartData = () => {
         if (viewMode === "weekly") {
             if (!weeklyData) return [];
@@ -223,7 +250,7 @@ function StatisticScreen({ navigation }) {
                     ) : null
             }));
         } else {
-            return montlyData.map((item, index) => ({
+            return monthlyData.map((item, index) => ({
                 ...item,
                 topLabelComponent: () =>
                     selectedBarIndex === index ? (
@@ -255,7 +282,7 @@ function StatisticScreen({ navigation }) {
                 {/*Style for the buttons of the weekly stats and monyly stats*/}
                 <View style={{ flexDirection: "row", justifyContent: "flex-start", paddingVertical: 10, paddingLeft: 10, gap: 20 }}>
                     <Pressable onPress={() => setViewMode("weekly")}><Text style={{ fontSize: 20 }}>Weekly</Text></Pressable>
-                    <Pressable onPress={() => setViewMode("montly")}><Text style={{ fontSize: 20 }}>Montly</Text></Pressable>
+                    <Pressable onPress={() => setViewMode("monthly")}><Text style={{ fontSize: 20 }}>Montly</Text></Pressable>
                 </View>
                 {/*View for the Month and icons*/}
                 <View style={{
