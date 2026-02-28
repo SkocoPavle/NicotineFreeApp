@@ -285,6 +285,9 @@ function StatisticScreen({ navigation }) {
                     <Pressable onPress={() => setViewMode("monthly")}><Text style={{ fontSize: 20 }}>Montly</Text></Pressable>
                 </View>
                 {/*View for the Month and icons*/}
+                <View>
+                    <Text>Total cigarets: </Text>
+                </View>
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
