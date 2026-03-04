@@ -8,6 +8,7 @@ import { Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PreventRemoveContext } from '@react-navigation/native';
+import { generateMonthlyData } from './constants/DummtData';
 
 const scrollY = new Animated.Value(0);
 
@@ -80,6 +81,9 @@ function StatisticScreen({ navigation }) {
         return days[day];
     }
 
+
+    //Funkcija za povcanje broja cigareta odmah nakon pritiskanja dugmeta smoke
+
     // Funkcija za dobijanje prvog dana u sedmici
     const getStartOfWeek = (date) => {
         const newDate = new Date(date);
@@ -131,7 +135,6 @@ function StatisticScreen({ navigation }) {
     //Funkcija za grenerisanje montly data
     const fetchMontlyData = async () => {
         const storedStats = await AsyncStorage.getItem('dailyStats');
-        console.log(JSON.parse(storedStats));
         const stats = storedStats ? JSON.parse(storedStats) : {};
 
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -236,6 +239,20 @@ function StatisticScreen({ navigation }) {
         fetchData();
     }, [currentWeekStart]);
 
+    // UseEffect za handleSmoke
+    useEffect (() => {
+        const unsubscribe = navigation.addListener('focus', async () => {
+            if (viewMode === "weekly"){
+                const updatedWeekly = await generateWeeklyData(currentWeek);
+                setWeeklyData(updatedWeekly);
+            } else{
+                fetchMontlyData();
+            }
+        });
+
+        return unsubscribe;
+    }, [navigation, viewMode, currentWeekStart])
+
 
     const getChartData = () => {
         if (viewMode === "weekly") {
@@ -280,13 +297,15 @@ function StatisticScreen({ navigation }) {
                 </Animated.View>
 
                 {/*Style for the buttons of the weekly stats and monyly stats*/}
-                <View style={{ flexDirection: "row", justifyContent: "flex-start", paddingVertical: 10, paddingLeft: 10, gap: 20 }}>
+                <View style={{ flexDirection: "row", justifyContent: "flex-start", paddingLeft: 10, gap: 20 , paddingTop: 5}}>
                     <Pressable onPress={() => setViewMode("weekly")}><Text style={{ fontSize: 20 }}>Weekly</Text></Pressable>
                     <Pressable onPress={() => setViewMode("monthly")}><Text style={{ fontSize: 20 }}>Montly</Text></Pressable>
                 </View>
                 {/*View for the Month and icons*/}
-                <View>
-                    <Text>Total cigarets: </Text>
+                <View style={{ paddingLeft: 10}}>
+                    <Text style={{fontSize: 30, fontWeight: '500'}}>Total cigarets: 
+                        
+                    </Text>
                 </View>
                 <View style={{
                     flexDirection: 'row',
