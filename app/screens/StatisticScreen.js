@@ -7,8 +7,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { PreventRemoveContext } from '@react-navigation/native';
-import { generateMonthlyData } from './constants/DummtData';
 
 const scrollY = new Animated.Value(0);
 
@@ -37,6 +35,7 @@ function StatisticScreen({ navigation }) {
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [selectedBarIndex, setSelectedBarIndex] = useState(null);
     const [viewMode, setViewMode] = useState("weekly");
+    const [totalCigarettes, setTotalCigarettes] = useState(0);
     const limit = useState(40);
     const theme = colorThemes[colorTheme];
     const themeColor = Color[theme.name];
@@ -195,14 +194,50 @@ function StatisticScreen({ navigation }) {
         setSelectedBarIndex(null);
     }
 
+    // Funkcija za sumiranje broja cigareta
+    const calculateTotal = (data) => {
+        if (!data) return;
+        return data.reduce((sum, item) => sum + (item.value || 0), 0);
+    }
+
+    //Funkcija za ispisivanje ukupnog broja cigara
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', async () => {
+            if (viewMode === "weekly" && currentWeekStart) {
+                const weekly = await generateWeeklyData(currentWeekStart);
+                setWeeklyData(weekly);
+                setTotalCigarettes(calculateTotal(weekly));
+            } else {
+                const storedStats = await AsyncStorage.getItem('dailyStats');
+                const stats = storedStats ? JSON.parse(storedStats) : {};
+
+                const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+                const monthData = [];
+
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const date = new Date(currentYear, currentMonth, i);
+                    const key = date.toLocaleDateString('en-CA');
+
+                    monthData.push({
+                        value: stats[key] || 0,
+                        label: i.toString(),
+                    });
+                }
+
+                setMonthlyData(monthData);
+                setTotalCigarettes(calculateTotal(monthData));
+            }
+        });
+
+        return unsubscribe; // Čisti listener
+    }, [viewMode, navigation, currentWeekStart, currentMonth, currentYear, installDate]);
+
     useEffect(() => {
         const initApp = async () => {
             const installDateLocal = await ensureInstallDate();
             setInstallDate(installDateLocal);
 
             const today = new Date()
-            const todayYear = today.getFullYear();
-            const todayMonth = today.getMonth();
 
             const startOfCurrentWeek = getStartOfWeek(today);
             setCurrentWeekStart(startOfCurrentWeek);
@@ -222,7 +257,6 @@ function StatisticScreen({ navigation }) {
             fetchMontlyData();
         }
     }, [viewMode, currentMonth, currentYear]);
-    const [currentWeek, setCurrentWeek] = useState(null);
 
     useEffect(() => {
         if (!currentWeekStart) return;
@@ -299,8 +333,8 @@ function StatisticScreen({ navigation }) {
                 </View>
                 {/*View for the Month and icons*/}
                 <View style={{ paddingLeft: 10}}>
-                    <Text style={{fontSize: 30, fontWeight: '500'}}>Total cigarets: 
-                        
+                    <Text style={{fontSize: 30, fontWeight: '500'}}>
+                        Total cigarettses: {totalCigarettes}
                     </Text>
                 </View>
                 <View style={{
