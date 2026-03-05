@@ -145,7 +145,8 @@ function StatisticScreen({ navigation }) {
                 label: day.toString(),
             });
         }     
-        setMonthlyData(monthData);      
+        setMonthlyData(monthData);
+        setTotalCigarettes(calculateTotal(monthData));      
     }
     //Navigacija kroz sedmice
 
@@ -199,39 +200,7 @@ function StatisticScreen({ navigation }) {
         if (!data) return;
         return data.reduce((sum, item) => sum + (item.value || 0), 0);
     }
-
-    //Funkcija za ispisivanje ukupnog broja cigara
-    useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', async () => {
-            if (viewMode === "weekly" && currentWeekStart) {
-                const weekly = await generateWeeklyData(currentWeekStart);
-                setWeeklyData(weekly);
-                setTotalCigarettes(calculateTotal(weekly));
-            } else {
-                const storedStats = await AsyncStorage.getItem('dailyStats');
-                const stats = storedStats ? JSON.parse(storedStats) : {};
-
-                const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-                const monthData = [];
-
-                for (let i = 1; i <= daysInMonth; i++) {
-                    const date = new Date(currentYear, currentMonth, i);
-                    const key = date.toLocaleDateString('en-CA');
-
-                    monthData.push({
-                        value: stats[key] || 0,
-                        label: i.toString(),
-                    });
-                }
-
-                setMonthlyData(monthData);
-                setTotalCigarettes(calculateTotal(monthData));
-            }
-        });
-
-        return unsubscribe; // Čisti listener
-    }, [viewMode, navigation, currentWeekStart, currentMonth, currentYear, installDate]);
-
+    
     useEffect(() => {
         const initApp = async () => {
             const installDateLocal = await ensureInstallDate();
@@ -256,14 +225,15 @@ function StatisticScreen({ navigation }) {
         if (viewMode === "monthly") {
             fetchMontlyData();
         }
-    }, [viewMode, currentMonth, currentYear]);
-
+    }, [viewMode, currentMonth, currentYear]);    
+    
     useEffect(() => {
         if (!currentWeekStart) return;
 
         const fetchData = async () => {
             const data = await generateWeeklyData(currentWeekStart);
             setWeeklyData(data);
+            setTotalCigarettes(calculateTotal(data));
         }
 
         fetchData();
