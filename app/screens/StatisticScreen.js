@@ -28,7 +28,6 @@ const colorThemes = {
 };
 
 function StatisticScreen({ navigation }) {
-    const [currentDay, setCurrentDay] = useState(new Date().getDay());
     const [colorTheme, setColorTheme] = useState("cyan");
     const [installDate, setInstallDate] = useState(null);
     const [currentWeekStart, setCurrentWeekStart] = useState(null);
@@ -81,14 +80,12 @@ function StatisticScreen({ navigation }) {
         return days[day];
     }
 
-
-    //Funkcija za povcanje broja cigareta odmah nakon pritiskanja dugmeta smoke
-
     // Funkcija za dobijanje prvog dana u sedmici
     const getStartOfWeek = (date) => {
         const newDate = new Date(date);
         const day = newDate.getDay();
         newDate.setDate(newDate.getDate() - day);
+        newDate.setHours(0, 0, 0, 0);
         return newDate;
     };
 
@@ -158,14 +155,13 @@ function StatisticScreen({ navigation }) {
 
         const newWeekStart = new Date(currentWeekStart);
         newWeekStart.setDate(newWeekStart.getDate() + direction * 7);
-
-        if (newWeekStart > maxWeek || newWeekStart < installWeek) {
+        const maxWeekStart = getStartOfWeek(new Date());
+        const startOfInstallWeek = getStartOfWeek(installDate);
+        
+        if (newWeekStart > maxWeekStart || newWeekStart < startOfInstallWeek) {
             return;
         }
-
-        const data = await generateWeeklyData(newWeekStart);
         setCurrentWeekStart(newWeekStart);
-        setWeeklyData(data);
     }
 
     //Navigacija kroz mjesece
@@ -239,11 +235,11 @@ function StatisticScreen({ navigation }) {
         fetchData();
     }, [currentWeekStart]);
 
-    // UseEffect za handleSmoke
+    // UseEffect za povecanje broja cigareta na samom pritisku dugemta
     useEffect (() => {
         const unsubscribe = navigation.addListener('focus', async () => {
             if (viewMode === "weekly"){
-                const updatedWeekly = await generateWeeklyData(currentWeek);
+                const updatedWeekly = await generateWeeklyData(currentWeekStart);
                 setWeeklyData(updatedWeekly);
             } else{
                 fetchMontlyData();
