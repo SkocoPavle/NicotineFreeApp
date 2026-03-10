@@ -36,6 +36,7 @@ function StatisticScreen({ navigation }) {
     const [selectedBarIndex, setSelectedBarIndex] = useState(null);
     const [viewMode, setViewMode] = useState("weekly");
     const [totalCigarettes, setTotalCigarettes] = useState(0);
+    const [clicked, setClicked] = useState(0);
     const limit = useState(40);
     const theme = colorThemes[colorTheme];
     const themeColor = Color[theme.name];
@@ -297,12 +298,18 @@ function StatisticScreen({ navigation }) {
                 </Animated.View>
 
                 {/*Style for the buttons of the weekly stats and monyly stats*/}
-                <View style={{ flexDirection: "row", justifyContent: "flex-start", paddingLeft: 10, gap: 20 , paddingTop: 5}}>
-                    <Pressable onPress={() => setViewMode("weekly")}><Text style={{ fontSize: 20 }}>Weekly</Text></Pressable>
-                    <Pressable onPress={() => setViewMode("monthly")}><Text style={{ fontSize: 20 }}>Montly</Text></Pressable>
+                <View style={{ flexDirection: "row", justifyContent: "flex-start", paddingTop: 5, marginBottom: 5, backgroundColor: Color[theme.name][100], width: "95%", alignSelf: "center", borderRadius: 10}}>
+                    <Pressable onPress={() => {setViewMode("weekly")}} 
+                    style={{ backgroundColor: viewMode === "weekly" ? Color[theme.name][700] : "white", width: 90, height: 40, alignItems: "center", justifyContent: "center", borderRadius: 15}}>
+                        <Text style={{ fontSize: 20, color: viewMode === "weekly" ? Color[theme.name][50] : Color[theme.name][500]}}>Weekly</Text>
+                        </Pressable>
+                    <Pressable onPress={() => setViewMode("monthly")} 
+                    style={{ backgroundColor: viewMode === "monthly" ? Color[theme.name][700] : "white",  width: 90, height: 40, alignItems: "center", justifyContent: "center", borderRadius: 15}}>
+                        <Text style={{ fontSize: 20, color: viewMode === "monthly" ? Color[theme.name][50] : Color[theme.name][500]}}>Monthly</Text>
+                    </Pressable>
                 </View>
                 {/*View for the Month and icons*/}
-                <View style={{ paddingLeft: 10}}>
+                <View style={{ paddingLeft: 15}}>
                     <Text style={{fontSize: 30, fontWeight: '500'}}>
                         Total cigarettses: {totalCigarettes}
                     </Text>
