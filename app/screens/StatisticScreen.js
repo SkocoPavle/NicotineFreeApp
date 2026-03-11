@@ -37,6 +37,7 @@ function StatisticScreen({ navigation }) {
     const [viewMode, setViewMode] = useState("weekly");
     const [totalCigarettes, setTotalCigarettes] = useState(0);
     const slideAnim = useRef(new Animated.Value(0)).current;
+    const [percentageChange, setPercentageChange] = useState(null);
     const limit = useState(40);
     const theme = colorThemes[colorTheme];
     const themeColor = Color[theme.name];
@@ -265,6 +266,83 @@ function StatisticScreen({ navigation }) {
         }).start()
     }
 
+    // Funkcija za dobijanje popusenih cigara prosle sedmice
+    const getLastWeekTotal = async () => {
+        if (!installDate) return null;
+
+        const lastWeekStart = new Date(currentWeekStart);
+        lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+
+        const startOfInstallWeek = getStartOfWeek(installDate);
+        if (lastWeekStart < startOfInstallWeek) return null;
+
+        const lastWeekData = await generateWeeklyData(lastWeekStart);
+        const total = calculateTotal(lastWeekData);
+        return total;
+    }
+
+    // Funkcija za dobijanje popusenih cigara proslog mjeseca
+    const getLastMonthTotal = async () => {
+        if (!installDate) return null;
+
+        let lastMonth = currentMonth - 1;
+        let lastYear = currentYear;
+
+        if (lastMonth < 0){
+            lastMonth = 11;
+            lastYear = currentYear - 1;
+        }
+
+        const installYear = installDate.getFullYear();
+        const installMonth = installDate.getMonth();
+        if (lastYear < installYear || (lastYear === installYear && lastMonth < installMonth)) return null;
+
+        const storedStats = await AsyncStorage.getItem('dailyStats');
+        const stats = storedStats ? JSON.parse(storedStats) : {};
+
+        const daysInMonth = new Date(lastYear, lastMonth + 1, 0).getDate();
+        const monthData = [];
+
+        for (let day = 1; day <= daysInMonth; day++){
+            const date = new Date(lastYear, lastMonth, day);
+            const key = date.toLocaleDateString('en-CA');
+            monthData.push({ value: stats[key] || 0 });
+        }
+        
+        const total = calculateTotal(monthData);
+        return total;
+    }
+
+    // Funckija za racunanje razlika kod cigara koje su popusene ovu i proslu sedmicu ili ovaj i prosli mjesece
+    const calculatePercentageChange = async () => {
+        let previous = null;
+
+        if (viewMode === "weekly") previous = await getLastWeekTotal();
+        else previous = await getLastMonthTotal();
+
+        if (previous === null) {
+        setPercentageChange(null);
+        return;
+        }
+
+        if (previous === 0) {
+            if (totalCigarettes === 0) {
+                setPercentageChange(0);
+            } else {
+                setPercentageChange(100 * totalCigarettes);
+            }
+            return;
+        }
+
+        const difference = ((totalCigarettes - previous) / previous) * 100;
+        setPercentageChange(difference.toFixed(1));
+    }
+
+    // Use effect za procenat
+    useEffect(() => {
+        calculatePercentageChange();
+    }, [totalCigarettes, viewMode, currentWeekStart, currentMonth, currentYear]);
+
     const getChartData = () => {
         if (viewMode === "weekly") {
             if (!weeklyData) return [];
@@ -320,10 +398,16 @@ function StatisticScreen({ navigation }) {
                         </Pressable>
                 </View>
                 {/*View for the Month and icons*/}
-                <View style={{ paddingLeft: 15}}>
+                <View style={{ paddingLeft: 15, display:"flex", flexDirection: 'row', justifyContent: "space-between", alignItems: "center"}}>
                     <Text style={{fontSize: 30, fontWeight: '500'}}>
                         Total cigarettses: {totalCigarettes}
                     </Text>
+                    {percentageChange !== null && (
+                    <Text style={{marginRight: 20, fontSize: 20, color: "gray"}}>
+                        {percentageChange > 0 ? "+" : ""}
+                        {percentageChange}%
+                    </Text>
+                    )}
                 </View>
                 <View style={{
                     flexDirection: 'row',
