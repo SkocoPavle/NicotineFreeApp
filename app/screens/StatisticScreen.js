@@ -247,6 +247,7 @@ function StatisticScreen({ navigation }) {
             if (viewMode === "weekly"){
                 const updatedWeekly = await generateWeeklyData(currentWeekStart);
                 setWeeklyData(updatedWeekly);
+                setTotalCigarettes(calculateTotal(updatedWeekly));
             } else{
                 fetchMontlyData();
             }
