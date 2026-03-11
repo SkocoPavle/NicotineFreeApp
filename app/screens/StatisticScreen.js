@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Color } from './constants/TWPalete';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Animated } from 'react-native';
@@ -36,7 +36,7 @@ function StatisticScreen({ navigation }) {
     const [selectedBarIndex, setSelectedBarIndex] = useState(null);
     const [viewMode, setViewMode] = useState("weekly");
     const [totalCigarettes, setTotalCigarettes] = useState(0);
-    const [clicked, setClicked] = useState(0);
+    const slideAnim = useRef(new Animated.Value(0)).current;
     const limit = useState(40);
     const theme = colorThemes[colorTheme];
     const themeColor = Color[theme.name];
@@ -254,6 +254,16 @@ function StatisticScreen({ navigation }) {
         return unsubscribe;
     }, [navigation, viewMode, currentWeekStart])
 
+    // Funkcija za promjenu moda(animacija)
+    const switchMode = (mode) => {
+        setViewMode(mode);
+
+        Animated.timing(slideAnim, {
+            toValue: mode === "weekly" ? 0 : 90,
+            duration: 250,
+            useNativeDriver: false
+        }).start()
+    }
 
     const getChartData = () => {
         if (viewMode === "weekly") {
@@ -298,15 +308,16 @@ function StatisticScreen({ navigation }) {
                 </Animated.View>
 
                 {/*Style for the buttons of the weekly stats and monyly stats*/}
-                <View style={{ flexDirection: "row", justifyContent: "flex-start", paddingTop: 5, marginBottom: 5, backgroundColor: Color[theme.name][100], width: "95%", alignSelf: "center", borderRadius: 10}}>
-                    <Pressable onPress={() => {setViewMode("weekly")}} 
-                    style={{ backgroundColor: viewMode === "weekly" ? Color[theme.name][700] : "white", width: 90, height: 40, alignItems: "center", justifyContent: "center", borderRadius: 15}}>
-                        <Text style={{ fontSize: 20, color: viewMode === "weekly" ? Color[theme.name][50] : Color[theme.name][500]}}>Weekly</Text>
+                <View style={{ flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingTop: 5, marginBottom: 5, backgroundColor: Color[theme.name][100], width: "95%", alignSelf: "center", borderRadius: 10}}>
+                    <Animated.View style={{position: 'absolute', width: 90, height: 40, backgroundColor: Color[theme.name][700], borderRadius: 15, transform: [{ translateX: slideAnim }]}}/>
+                        <Pressable onPress={() => {setViewMode("weekly"), switchMode("weekly")}} 
+                        style={{width: 90, height: 40, alignItems: "center", justifyContent: "center"}}>
+                            <Text style={{ fontSize: 20, color: viewMode === "weekly" ? Color[theme.name][50] : Color[theme.name][600]}}>Weekly</Text>
+                            </Pressable>
+                        <Pressable onPress={() => {setViewMode("monthly"), switchMode("monthly")}} 
+                        style={{width: 90, height: 40, alignItems: "center", justifyContent: "center"}}>
+                            <Text style={{ fontSize: 20, color: viewMode === "monthly" ? Color[theme.name][50] : Color[theme.name][600]}}>Monthly</Text>
                         </Pressable>
-                    <Pressable onPress={() => setViewMode("monthly")} 
-                    style={{ backgroundColor: viewMode === "monthly" ? Color[theme.name][700] : "white",  width: 90, height: 40, alignItems: "center", justifyContent: "center", borderRadius: 15}}>
-                        <Text style={{ fontSize: 20, color: viewMode === "monthly" ? Color[theme.name][50] : Color[theme.name][500]}}>Monthly</Text>
-                    </Pressable>
                 </View>
                 {/*View for the Month and icons*/}
                 <View style={{ paddingLeft: 15}}>

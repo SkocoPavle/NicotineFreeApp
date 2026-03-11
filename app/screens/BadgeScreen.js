@@ -4,7 +4,7 @@ import { Text, View } from 'react-native';
 function BadgeScreen() {
     return (
         <View style={{justifyContent: 'center', alignContent: 'center'}}>
-            <Text>Jeca pereca</Text>
+            <Text>Jeca princeza</Text>
         </View>
     );
 }
