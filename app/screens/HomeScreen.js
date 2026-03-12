@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { useTheme } from '../ThemeContext';
 
 export default function Home() {
   // Za animaciju i 
@@ -16,6 +17,8 @@ export default function Home() {
 
   const isOverLimit = count >= limit;
   const progressValue = Math.min(count / limit, 1);
+
+  const { themeColor, theme } = useTheme();
 
   const checkDailyReset = async () => {
     const today = new Date().toDateString();
@@ -73,7 +76,7 @@ export default function Home() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: themeColor[100], flex: 1, justifyContent: 'center', alignItems: 'center'}]}>
         <View style={styles.counter}>
           <Text style={styles.text}>Cigarette Counter</Text><View style={styles.counterView}>
               <Progress.Circle
@@ -134,13 +137,6 @@ const styles = StyleSheet.create({
     borderRadius: 150,
     alignItems: 'center', 
     justifyContent: 'center' 
-  },
-
-  container: {
-    flex: 1,
-    backgroundColor: 'skyblue',
-    justifyContent: 'center',
-    alignItems: 'center'
   },
 
   counter: {

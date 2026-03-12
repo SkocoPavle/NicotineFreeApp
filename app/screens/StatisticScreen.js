@@ -8,6 +8,8 @@ import { Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { useTheme } from '../ThemeContext';
+
 const scrollY = new Animated.Value(0);
 
 const headerOpacity = scrollY.interpolate({
@@ -26,7 +28,8 @@ const colorThemes = {
 };
 
 function StatisticScreen({ navigation }) {
-    const [colorTheme, setColorTheme] = useState("cyan");
+    const { colorTheme, setColorTheme, theme, themeColor } = useTheme();
+
     const [installDate, setInstallDate] = useState(null);
     const [currentWeekStart, setCurrentWeekStart] = useState(null);
     const [weeklyData, setWeeklyData] = useState([]);
@@ -40,13 +43,13 @@ function StatisticScreen({ navigation }) {
     const [percentageChange, setPercentageChange] = useState(null);
     const [savedMoney, setSavedMoney] = useState(0);
     const [limit, setLimit] = useState(40);
-    const theme = colorThemes[colorTheme];
-    const themeColor = Color[theme.name];
+
+    
 
     const bgColors = [
-        Color[theme.name][100],
+        themeColor[100],
         "#ffffff",
-        Color[theme.name][100],
+        themeColor[100],
     ];
 
     // Ime mjeseca
@@ -431,11 +434,11 @@ function StatisticScreen({ navigation }) {
                 </Animated.View>
 
                 {/*Style for the buttons of the weekly stats and monyly stats*/}
-                <View style={{ flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingTop: 5, marginBottom: 5, backgroundColor: Color[theme.name][100], width: "95%", alignSelf: "center", borderRadius: 10}}>
-                    <Animated.View style={{position: 'absolute', width: 90, height: 40, backgroundColor: Color[theme.name][700], borderRadius: 15, transform: [{ translateX: slideAnim }]}}/>
+                <View style={{ flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingTop: 5, marginBottom: 5, backgroundColor: themeColor[100], width: "95%", alignSelf: "center", borderRadius: 10}}>
+                    <Animated.View style={{position: 'absolute', width: 90, height: 40, backgroundColor: themeColor[700], borderRadius: 15, transform: [{ translateX: slideAnim }]}}/>
                         <Pressable onPress={() => {setViewMode("weekly"), switchMode("weekly")}} 
                         style={{width: 90, height: 40, alignItems: "center", justifyContent: "center"}}>
-                            <Text style={{ fontSize: 20, color: viewMode === "weekly" ? Color[theme.name][50] : Color[theme.name][600]}}>Weekly</Text>
+                            <Text style={{ fontSize: 20, color: viewMode === "weekly" ? themeColor[50] : themeColor[600]}}>Weekly</Text>
                             </Pressable>
                         <Pressable onPress={() => {setViewMode("monthly"), switchMode("monthly")}} 
                         style={{width: 90, height: 40, alignItems: "center", justifyContent: "center"}}>
