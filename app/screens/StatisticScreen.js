@@ -38,7 +38,8 @@ function StatisticScreen({ navigation }) {
     const [totalCigarettes, setTotalCigarettes] = useState(0);
     const slideAnim = useRef(new Animated.Value(0)).current;
     const [percentageChange, setPercentageChange] = useState(null);
-    const limit = useState(40);
+    const [savedMoney, setSavedMoney] = useState(0);
+    const [limit, setLimit] = useState(40);
     const theme = colorThemes[colorTheme];
     const themeColor = Color[theme.name];
 
@@ -344,6 +345,49 @@ function StatisticScreen({ navigation }) {
         calculatePercentageChange();
     }, [totalCigarettes, viewMode, currentWeekStart, currentMonth, currentYear]);
 
+    // Funckija za racunanje ustedjenog novca od prestanka pusenja
+    const calculateMoney = async () => {
+        let previous = 0;
+        let periodLimit = limit;
+        
+        if (viewMode === "weekly") {
+            previous = await getLastWeekTotal();
+            if (previous === null) return 0;
+            periodLimit = limit * 7;
+        }
+        else {
+            previous = await getLastMonthTotal();
+            if (previous === null) return 0;
+            let lastMonth = currentMonth - 1;
+            let lastYear = currentYear;
+            if (lastMonth < 0) {
+                lastMonth = 11;
+                lastYear -= 1;
+            }
+            const daysInMonth = new Date(lastYear, lastMonth + 1, 0).getDate();
+            periodLimit = limit * daysInMonth; 
+        }
+
+        const cigarettesSaved = periodLimit - previous;
+
+        const pricePerCigarette = 5 / 20; // RAcunanje koliko kosta jedna cigareta ako znamo cijenu cijele pakle (promjeniti cijenu pakle na osnovu unosa korisnika)
+        
+
+        const savedMoney = cigarettesSaved * pricePerCigarette;
+
+        return savedMoney.toFixed(2);
+    }
+
+    useEffect(() => {
+    const fetchMoney = async () => {
+        const money = await calculateMoney();
+        setSavedMoney(money);
+    };
+
+    fetchMoney();
+    }, [viewMode, currentWeekStart, currentMonth, currentYear]);
+
+
     const getChartData = () => {
         if (viewMode === "weekly") {
             if (!weeklyData) return [];
@@ -476,6 +520,13 @@ function StatisticScreen({ navigation }) {
                                                 : "none",
                                     }} />
                             ))}
+                        </View>
+                        <View style={{backgroundColor: "white",justifyContent: "flex-end", width: "100%", height: "70", borderRadius: 15, top: 10}}>
+                        <Text style={{paddingLeft: 5, paddingBottom: 10, fontSize: 25, color: savedMoney >= 0 ? "darkgreen" : "red" }}>
+                            {savedMoney >= 0
+                                ? `You saved: ${savedMoney}€ last ${viewMode === "weekly" ? "week" : "month"}`
+                                : `You spent: ${Math.abs(savedMoney)}€ ${viewMode === "weekly" ? "week" : "month"}`}
+                        </Text>
                         </View>
                     </View>
                 </Animated.ScrollView>
