@@ -525,7 +525,7 @@ function StatisticScreen({ navigation }) {
                             ))}
                         </View>
                         <View style={{backgroundColor: "white",justifyContent: "flex-end", width: "100%", height: "70", borderRadius: 15, top: 10}}>
-                        <Text style={{paddingLeft: 5, paddingBottom: 10, fontSize: 25, color: savedMoney >= 0 ? "darkgreen" : "red" }}>
+                        <Text style={{paddingLeft: 10, paddingBottom: 10, fontSize: 25, color: savedMoney >= 0 ? "darkgreen" : "red" }}>
                             {savedMoney >= 0
                                 ? `You saved: ${savedMoney}€ last ${viewMode === "weekly" ? "week" : "month"}`
                                 : `You spent: ${Math.abs(savedMoney)}€ ${viewMode === "weekly" ? "week" : "month"}`}
