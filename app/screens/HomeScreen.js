@@ -1,10 +1,11 @@
 import {StyleSheet, View, Pressable, Text, AppState} from 'react-native';
 import { SafeAreaView} from 'react-native-safe-area-context';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import * as Progress from 'react-native-progress';
 import { Ionicons } from '@expo/vector-icons';
 import { Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TimerContext } from './Timecontext';
 
 import { useTheme } from '../ThemeContext';
 
@@ -19,6 +20,8 @@ export default function Home() {
   const progressValue = Math.min(count / limit, 1);
 
   const { themeColor, theme } = useTheme();
+
+  const { time, resetTimer } = useContext(TimerContext);
 
   const checkDailyReset = async () => {
     const today = new Date().toDateString();
@@ -56,7 +59,12 @@ export default function Home() {
     const stats = storedStats ? JSON.parse(storedStats) : {};
     stats[todayKey] = (stats[todayKey] || 0) + 1;
     await AsyncStorage.setItem('dailyStats', JSON.stringify(stats));
-  } ;
+  };
+
+  const handleSmoke = async () => {
+  await cigaretteCount();
+  resetTimer();
+};
 
   const circleColor = animatedProgress.interpolate({
     inputRange: [0, 1],
@@ -105,7 +113,7 @@ export default function Home() {
         </View>
 
         <SafeAreaView style={styles.buttonContainer}>
-            <Pressable style={[styles.button,  {backgroundColor: isOverLimit ? "#E53935" : "#4A90E2"}]} onPress={cigaretteCount}>
+            <Pressable style={[styles.button,  {backgroundColor: isOverLimit ? "#E53935" : "#4A90E2"}]} onPress={handleSmoke}>
               <Animated.View style={[styles.button, { backgroundColor: circleColor }]}>
                 <Progress.Circle
                   progress={100}
