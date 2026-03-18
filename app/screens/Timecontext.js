@@ -5,6 +5,7 @@ export const TimerContext = createContext();
 
 export const TimerProvider = ({ children }) => {
     const [time, setTime] = useState(0);
+    const startTimeRef = useRef(0);
 
     useEffect(() => {
         let interval;
@@ -17,8 +18,9 @@ export const TimerProvider = ({ children }) => {
                 await AsyncStorage.setItem("startTime", start.toString());
             }
 
+            startTimeRef.current = start;
             interval = setInterval(() => {
-                setTime(Date.now() - start);
+                setTime(Date.now() - startTimeRef.current);
             }, 1000);
         };
 
@@ -30,6 +32,7 @@ export const TimerProvider = ({ children }) => {
     const resetTimer = async() => {
         const now = Date.now();
         await AsyncStorage.setItem('startTime', now.toString());
+        startTimeRef.current = now;
     };
 
     return (
