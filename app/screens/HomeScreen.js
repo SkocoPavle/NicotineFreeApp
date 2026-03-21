@@ -21,7 +21,7 @@ export default function Home() {
 
   const { themeColor, theme } = useTheme();
 
-  const { time, resetTimer } = useContext(TimerContext);
+  const { resetTimer } = useContext(TimerContext);
 
   const checkDailyReset = async () => {
     const today = new Date().toDateString();
