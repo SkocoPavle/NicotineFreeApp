@@ -16,7 +16,7 @@ function BadgeScreen() {
     return (
         <View style={{backgroundColor: themeColor[100], flex: 1, justifyContent: 'center', alignItems: 'center'}}>
             <Text>
-                {hours}:{minutes}:{seconds}
+                {days}{hours}:{minutes}:{seconds}
             </Text>
         </View>
     );
